@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"chemeditor-desc": "Allows embedding and drawing of molekules and chemical reactions",
+	"chemeditor-i18n-welcome": "Welcome to the localization file of the ChemEditor extension.",
+	"chemeditor-helloworld": "Hello world!",
+	"chemeditor-helloworld-intro": "Welcome to the \"Hello world\" special page of the ChemEditor extension.",
+	"helloworld": "Hello world"
+}

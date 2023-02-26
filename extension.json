@@ -1,0 +1,53 @@
+{
+	"name": "ChemEditor",
+	"version": "0.1.0",
+	"author": [
+		"Simon Stier"
+	],
+	"url": "https://github.com/OpenSemanticLab/mediawiki-extensions-ChemEditor",
+	"descriptionmsg": "chemeditor-desc",
+	"license-name": "AGPL v3",
+	"type": "other",
+	"AutoloadClasses": {
+		"ChemEditorHooks": "ChemEditor.hooks.php",
+		"SpecialChemEditor": "specials/SpecialChemEditor.php"
+	},
+	"config": {
+		"ChemEditorEnableFoo": true
+	},
+	"ExtensionMessagesFiles": {
+		"ChemEditorAlias": "ChemEditor.i18n.alias.php"
+	},
+	"Hooks": {
+		
+		"ParserFirstCallInit": [
+			"ChemEditorHooks::onParserFirstCallInit"
+		]
+	},
+	"MessagesDirs": {
+		"ChemEditor": [
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.ChemEditor.foo": {
+			"scripts": [
+				"modules/ext.ChemEditor.js",
+				"modules/ext.ChemEditor.foo.js"
+			],
+			"styles": [
+				"modules/ext.ChemEditor.foo.css"
+			],
+			"messages": [],
+			"dependencies": []
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "ChemEditor"
+	},
+	"SpecialPages": {
+		"ChemEditor": "SpecialChemEditor"
+	},
+	"manifest_version": 1
+}
