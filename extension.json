@@ -16,7 +16,8 @@
 		"ChemEditorEnableFoo": true
 	},
 	"ExtensionMessagesFiles": {
-		"ChemEditorAlias": "ChemEditor.i18n.alias.php"
+		"ChemEditorAlias": "ChemEditor.i18n.alias.php",
+		"ChemEditorMagic": "ChemEditor.i18n.magic.php"
 	},
 	"Hooks": {
 		
