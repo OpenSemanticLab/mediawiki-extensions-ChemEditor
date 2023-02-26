@@ -33,173 +33,173 @@ var displayMolekule = function (context) {
 };
 
 $(document).ready(function () {
-	$.ajaxSetup({ cache: true });
-	//mw.loader.using( 'https://partridgejiang.github.io/Kekule.js/libs/kekule/kekule.min.js'), function () {
-	if ($(".div_kekule_view").length > 0 || $(".div_kekule_composer").length > 0 || $(".div_kekule_view_edit").length > 0) $.getScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js').done(function () { //threejs only needed for viewer
-		//$.getScript( 'https://partridgejiang.github.io/Kekule.js/libs/kekule/kekule.min.js' ).done( function () {
-		$.getScript('https://repolab.github.io/Kekule.js/dist/kekule.min.js').done(function () {
-			mw.loader.load('https://partridgejiang.github.io/Kekule.js/libs/kekule/themes/default/kekule.css', 'text/css');
+	if ($(".div_kekule_view").length && $(".div_kekule_composer").length && $(".div_kekule_view_edit").length > 0) return;
 
-			var debug = false;
-			Kekule.Indigo.enable(function (error) {
-				if (debug) console.log('Indigo loaded');
+	$.when(
+		mw.loader.using('ext.ChemEditor.kekule'),
+		mw.loader.using('ext.ChemEditor.utils') //threejs only needed for viewer
+	).done(function () {
 
-				$(".div_kekule_composer").each(function (index) {
-					var div_element = $(this);
+		var debug = false;
+		Kekule.environment.setEnvVar('indigo.path', '/w/extensions/ChemEditor/modules/kekule/extra/');
+		Kekule.Indigo.enable(function (error) {
+			if (debug) console.log('Indigo loaded');
 
-					var page = div_element.text(); //read data from div content
+			$(".div_kekule_composer").each(function (index) {
+				var div_element = $(this);
 
-					div_element.text(''); //clear div content
-					div_element.show(); //ensure visibility
+				var page = div_element.text(); //read data from div content
 
-					var composer = new Kekule.Editor.Composer(document.getElementById(div_element.attr('id')));
-					var context = {};
-					context.debug = debug;
-					if (context.debug) console.log(page);
-					context.composer = composer;
-					context.page = page;
-					context.api = new mw.Api();
-					initComposer(context);
+				div_element.text(''); //clear div content
+				div_element.show(); //ensure visibility
 
-					var query = "/w/index.php?title=" + context.page + "&action=raw";
-					$.ajax({
-						url: query,
-						dataType: "text",
-						success: displayKekuleDocument(context)
-					});
+				var composer = new Kekule.Editor.Composer(document.getElementById(div_element.attr('id')));
+				var context = {};
+				context.debug = debug;
+				if (context.debug) console.log(page);
+				context.composer = composer;
+				context.page = page;
+				context.api = new mw.Api();
+				initComposer(context);
 
-
+				var query = "/w/index.php?title=" + context.page + "&action=raw";
+				$.ajax({
+					url: query,
+					dataType: "text",
+					success: displayKekuleDocument(context)
 				});
 
-				$(".div_kekule_view").each(function (index) {
-					var div_element = $(this);
 
-					var data = div_element.html(); //read data from div content
-
-					div_element.html(''); //clear div content
-					div_element.show(); //ensure visibility
-
-					var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(div_element.attr('id')));
-					var context = {};
-					context.debug = debug;
-					if (context.debug) console.log(data);
-					context.chemViewer = chemViewer;
-					context.source = "smw"
-					if (div_element.hasClass('div_kekule_source_pubchem')) context.source = "pubchem";
-
-					// set new object in viewer
-					var myMolecule = '';
-					if (div_element.hasClass('div_kekule_format_smi')) {
-						if (context.debug) console.log('Format: SMI');
-						myMolecule = Kekule.IO.loadFormatData(data, 'smi');
-						chemViewer.setChemObj(myMolecule);
-					}
-					else if (div_element.hasClass('div_kekule_format_mol')) {
-						if (context.debug) console.log('Format: MOL');
-						if (div_element.hasClass('div_kekule_view_3d')) {
-							if (context.debug) console.log('View: 3D');
-							chemViewer.setRenderType(Kekule.Render.RendererType.R3D);
-						}
-						myMolecule = Kekule.IO.loadFormatData(data, 'mol');
-						chemViewer.setChemObj(myMolecule);
-					}
-					else if (div_element.hasClass('div_kekule_format_sdf')) {
-						context.format = 'sdf';
-						if (context.debug) console.log('Format: SDF');
-						var query = "api.php?action=ask&query=[[" + encodeURIComponent(data) + "]]+|%3FHas+sdf&format=json";
-						if (context.source === "pubchem") query = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/" + data + "/record/SDF/?record_type=2d&response_type=display";
-						if (div_element.hasClass('div_kekule_view_3d')) {
-							if (context.debug) console.log('View: 3D');
-							context.view = '3d';
-							chemViewer.setRenderType(Kekule.Render.RendererType.R3D);
-							query = "api.php?action=ask&query=[[" + encodeURIComponent(data) + "]]+|%3FHas+sdf+3d&format=json";
-							if (context.source === "pubchem") query = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/" + data + "/record/SDF/?record_type=3d&response_type=display";
-						}
-
-						if (context.source === "smw") {
-							$.ajax({
-								url: query,
-								dataType: "json",
-								cache: false,
-								success: displayMolekule(context)
-							});
-						}
-						//chemViewer.loadFromData(data, 'chemical/x-mdl-sdfile');
-						//myMolecule = Kekule.IO.loadTypedData(data, 'chemical/x-mdl-sdfile');
-						//chemViewer.setChemObj(myMolecule);
-						if (context.source === "pubchem") {
-							$.ajax({
-								url: query,
-								dataType: "text",
-								cache: true,
-								crossDomain: true,
-								success: displayMolekule(context)
-							});
-						}
-
-					}
-					chemViewer.setEnableToolbar(true);
-					chemViewer.setEnableDirectInteraction(true);
-					chemViewer.setEnableEdit(true);
-					chemViewer.setToolButtons([
-						'loadData', 'saveData', 'molDisplayType', 'molHideHydrogens',
-						'zoomIn', 'zoomOut',
-						'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ',
-						'reset', 'copy', 'config'
-					]);
-
-				});
-
-				//Viewer for kekule docs, can open an editor and save changes
-				$(".div_kekule_view_edit").each(function (index) {
-					var div_element = $(this);
-
-					var page = div_element.text(); //read data from div content
-
-					div_element.html(''); //clear div content
-					div_element.show(); //ensure visibility
-
-					var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(div_element.attr('id')));
-					var context = {};
-					context.debug = debug;
-					if (context.debug) console.log(page);
-					context.chemViewer = chemViewer;
-					context.page = page;
-					context.defaultPage = "OslTemplate:ELN/Editor/Kekule/Default";
-					context.api = new mw.Api();
-
-					chemViewer.setEnableToolbar(true);
-					chemViewer.setEnableDirectInteraction(true);
-					chemViewer.setEnableEdit(true);
-					chemViewer.setToolButtons([
-						'loadData', 'saveData', 'molDisplayType', 'molHideHydrogens',
-						'zoomIn', 'zoomOut',
-						'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ',
-						'reset', 'copy', 'openEditor', 'config'
-					]);
-					chemViewer.setEditorProperties({
-						'predefinedSetting': 'fullFunc',
-						//'commonToolButtons': ['loadData','saveData',
-						//						'undo','redo','copy','cut','paste',
-						//						'zoomIn','zoomOut','config','objInspector'
-						//					]
-						//'chemToolButtons': ['manipulate', 'erase', 'bond', 'atom']
-					});
-					chemViewer.on('load', function (e) {
-						if (context.debug) console.log('Object loaded', e.obj);
-					});
-					chemViewer.on('editingDone', function (e) {
-						if (context.debug) console.log('Object edited', e.obj);
-						context.chemObj = e.obj;
-						//context.chemObj = e.widget.getChemObj();
-						saveChemObj(context)();
-					});
-
-					var query = "/w/index.php?title=" + context.page + "&action=raw";
-					$.getJSON("/w/api.php?action=query&prop=revisions&titles=File:" + context.page + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
-				});
 			});
-		});//getScript
+
+			$(".div_kekule_view").each(function (index) {
+				var div_element = $(this);
+
+				var data = div_element.html(); //read data from div content
+
+				div_element.html(''); //clear div content
+				div_element.show(); //ensure visibility
+
+				var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(div_element.attr('id')));
+				var context = {};
+				context.debug = debug;
+				if (context.debug) console.log(data);
+				context.chemViewer = chemViewer;
+				context.source = "smw"
+				if (div_element.hasClass('div_kekule_source_pubchem')) context.source = "pubchem";
+
+				// set new object in viewer
+				var myMolecule = '';
+				if (div_element.hasClass('div_kekule_format_smi')) {
+					if (context.debug) console.log('Format: SMI');
+					myMolecule = Kekule.IO.loadFormatData(data, 'smi');
+					chemViewer.setChemObj(myMolecule);
+				}
+				else if (div_element.hasClass('div_kekule_format_mol')) {
+					if (context.debug) console.log('Format: MOL');
+					if (div_element.hasClass('div_kekule_view_3d')) {
+						if (context.debug) console.log('View: 3D');
+						chemViewer.setRenderType(Kekule.Render.RendererType.R3D);
+					}
+					myMolecule = Kekule.IO.loadFormatData(data, 'mol');
+					chemViewer.setChemObj(myMolecule);
+				}
+				else if (div_element.hasClass('div_kekule_format_sdf')) {
+					context.format = 'sdf';
+					if (context.debug) console.log('Format: SDF');
+					var query = "api.php?action=ask&query=[[" + encodeURIComponent(data) + "]]+|%3FHas+sdf&format=json";
+					if (context.source === "pubchem") query = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/" + data + "/record/SDF/?record_type=2d&response_type=display";
+					if (div_element.hasClass('div_kekule_view_3d')) {
+						if (context.debug) console.log('View: 3D');
+						context.view = '3d';
+						chemViewer.setRenderType(Kekule.Render.RendererType.R3D);
+						query = "api.php?action=ask&query=[[" + encodeURIComponent(data) + "]]+|%3FHas+sdf+3d&format=json";
+						if (context.source === "pubchem") query = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/" + data + "/record/SDF/?record_type=3d&response_type=display";
+					}
+
+					if (context.source === "smw") {
+						$.ajax({
+							url: query,
+							dataType: "json",
+							cache: false,
+							success: displayMolekule(context)
+						});
+					}
+					//chemViewer.loadFromData(data, 'chemical/x-mdl-sdfile');
+					//myMolecule = Kekule.IO.loadTypedData(data, 'chemical/x-mdl-sdfile');
+					//chemViewer.setChemObj(myMolecule);
+					if (context.source === "pubchem") {
+						$.ajax({
+							url: query,
+							dataType: "text",
+							cache: true,
+							crossDomain: true,
+							success: displayMolekule(context)
+						});
+					}
+
+				}
+				chemViewer.setEnableToolbar(true);
+				chemViewer.setEnableDirectInteraction(true);
+				chemViewer.setEnableEdit(true);
+				chemViewer.setToolButtons([
+					'loadData', 'saveData', 'molDisplayType', 'molHideHydrogens',
+					'zoomIn', 'zoomOut',
+					'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ',
+					'reset', 'copy', 'config'
+				]);
+
+			});
+
+			//Viewer for kekule docs, can open an editor and save changes
+			$(".div_kekule_view_edit").each(function (index) {
+				var div_element = $(this);
+
+				var page = div_element.text(); //read data from div content
+
+				div_element.html(''); //clear div content
+				div_element.show(); //ensure visibility
+
+				var chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(div_element.attr('id')));
+				var context = {};
+				context.debug = debug;
+				if (context.debug) console.log(page);
+				context.chemViewer = chemViewer;
+				context.page = page;
+				context.defaultPage = "OslTemplate:ELN/Editor/Kekule/Default";
+				context.api = new mw.Api();
+
+				chemViewer.setEnableToolbar(true);
+				chemViewer.setEnableDirectInteraction(true);
+				chemViewer.setEnableEdit(true);
+				chemViewer.setToolButtons([
+					'loadData', 'saveData', 'molDisplayType', 'molHideHydrogens',
+					'zoomIn', 'zoomOut',
+					'rotateLeft', 'rotateRight', 'rotateX', 'rotateY', 'rotateZ',
+					'reset', 'copy', 'openEditor', 'config'
+				]);
+				chemViewer.setEditorProperties({
+					'predefinedSetting': 'fullFunc',
+					//'commonToolButtons': ['loadData','saveData',
+					//						'undo','redo','copy','cut','paste',
+					//						'zoomIn','zoomOut','config','objInspector'
+					//					]
+					//'chemToolButtons': ['manipulate', 'erase', 'bond', 'atom']
+				});
+				chemViewer.on('load', function (e) {
+					if (context.debug) console.log('Object loaded', e.obj);
+				});
+				chemViewer.on('editingDone', function (e) {
+					if (context.debug) console.log('Object edited', e.obj);
+					context.chemObj = e.obj;
+					//context.chemObj = e.widget.getChemObj();
+					saveChemObj(context)();
+				});
+
+				var query = "/w/index.php?title=" + context.page + "&action=raw";
+				$.getJSON("/w/api.php?action=query&prop=revisions&titles=File:" + context.page + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
+			});
+		});
 	});//getScript
 });//document.ready
 

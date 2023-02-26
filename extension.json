@@ -30,6 +30,19 @@
 		]
 	},
 	"ResourceModules": {
+		"ext.ChemEditor.kekule": {
+			"scripts": [
+				"modules/kekule/kekule.min.js"
+			],
+			"styles": [
+				"modules/kekule/themes/default/kekule.css"
+			]
+		},
+		"ext.ChemEditor.utils": {
+			"scripts": [
+				"modules/utils/three.min.js"
+			]
+		},
 		"ext.ChemEditor": {
 			"scripts": [
 				"modules/ext.ChemEditor.js",
