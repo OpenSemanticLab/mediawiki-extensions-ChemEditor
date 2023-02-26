@@ -21,9 +21,8 @@
 	},
 	"Hooks": {
 		
-		"ParserFirstCallInit": [
-			"ChemEditorHooks::onParserFirstCallInit"
-		]
+		"ParserFirstCallInit": ["ChemEditorHooks::onParserFirstCallInit"],
+		"BeforePageDisplay": ["ChemEditorHooks::onBeforePageDisplay"]
 	},
 	"MessagesDirs": {
 		"ChemEditor": [
@@ -31,7 +30,7 @@
 		]
 	},
 	"ResourceModules": {
-		"ext.ChemEditor.foo": {
+		"ext.ChemEditor": {
 			"scripts": [
 				"modules/ext.ChemEditor.js",
 				"modules/ext.ChemEditor.foo.js"

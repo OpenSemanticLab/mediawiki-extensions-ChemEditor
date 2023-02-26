@@ -21,4 +21,12 @@ class ChemEditorHooks {
 
 		return "This text will be shown when calling this in MW text.";
 	}
+
+	public static function onBeforePageDisplay( $out ) {
+
+		$out->addModules( 'ext.ChemEditor' );
+
+		return true;
+
+	}
 }
