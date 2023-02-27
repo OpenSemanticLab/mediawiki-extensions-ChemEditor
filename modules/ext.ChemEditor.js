@@ -166,7 +166,7 @@ $(document).ready(function () {
 				if (context.debug) console.log(page);
 				context.chemViewer = chemViewer;
 				context.page = page;
-				context.defaultPage = "OslTemplate:ELN/Editor/Kekule/Default";
+				context.defaultPage = "Template:Editor/Kekule/Default";
 				context.api = new mw.Api();
 
 				chemViewer.setEnableToolbar(true);
