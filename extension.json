@@ -1,10 +1,10 @@
 {
 	"name": "ChemEditor",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"requires": {
 		"MediaWiki": ">= 1.35",
 		"extensions": {
-			"MwJson": "*"
+			"MwJson": ">= 0.6.0"
 		}
 	},
 	"author": [

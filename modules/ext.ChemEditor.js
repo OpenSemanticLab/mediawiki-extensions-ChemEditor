@@ -47,9 +47,9 @@ $(document).ready(function () {
 
 			$(".div_kekule_composer").each(function (index) {
 				var div_element = $(this);
-
-				var page = div_element.text(); //read data from div content
-
+				const config = div_element.data('config') ? div_element.data('config') : {};
+				var page = config.file_title ? config.file_title : div_element.text(); //read data from div content
+				var file_label = config.file_label ? config.file_label : page.replace("File:", "").split(".")[0];
 				div_element.text(''); //clear div content
 				div_element.show(); //ensure visibility
 
@@ -59,6 +59,7 @@ $(document).ready(function () {
 				if (context.debug) console.log(page);
 				context.composer = composer;
 				context.page = page;
+				context.file_label = file_label;
 				context.api = new mw.Api();
 				initComposer(context);
 
@@ -154,8 +155,9 @@ $(document).ready(function () {
 			//Viewer for kekule docs, can open an editor and save changes
 			$(".div_kekule_view_edit").each(function (index) {
 				var div_element = $(this);
-
-				var page = div_element.text(); //read data from div content
+				const config = div_element.data('config') ? div_element.data('config') : {};
+				var page = config.file_title ? config.file_title : div_element.text(); //read data from div content
+				var file_label = config.file_label ? config.file_label : page.replace("File:", "").split(".")[0];
 
 				div_element.html(''); //clear div content
 				div_element.show(); //ensure visibility
@@ -166,6 +168,7 @@ $(document).ready(function () {
 				if (context.debug) console.log(page);
 				context.chemViewer = chemViewer;
 				context.page = page;
+				context.file_label = file_label;
 				context.defaultPage = "Template:Editor/Kekule/Default";
 				context.api = new mw.Api();
 
@@ -258,7 +261,7 @@ var saveChemObj = function (context) {
 		var doc = Kekule.IO.saveFormatData(context.chemObj, 'Kekule-JSON');
 		if (context.debug) console.log(doc);
 		const blob = new Blob([doc], { type: 'application/json' });
-		KekuleEditor_uploadBlob(blob, context.page, "", "Created with KekuleEditor", context.debug);
+		KekuleEditor_uploadBlob(blob, context.page, "", "Created with KekuleEditor", context.debug, context.file_label);
 	};
 };
 
@@ -382,7 +385,7 @@ var initComposer = function (context) {
 };
 
 /* copied from WellplateEditor */
-function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false) {
+function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false, fileLabel = "") {
 	let file = new File([blob], fileName, {
 		type: blob.type,
 		lastModified: new Date().getTime()
@@ -402,7 +405,7 @@ function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false) {
 	api.upload(blob, param).done(function (data) {
 		if (debug) console.log(data.upload.filename + ' has sucessfully uploaded.');
 		file_exists = true;
-		mw.hook('kekuleeditor.file.uploaded').fire({ exists: false, name: fileName });
+		mw.hook('kekuleeditor.file.uploaded').fire({ exists: false, name: fileName, label: fileLabel });
 		mw.notify('Saved', {
 			type: 'success'
 		});
@@ -410,7 +413,7 @@ function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false) {
 	}).fail(function (data) {
 		if (debug) console.log(data);
 		if (data === 'exists') {
-			mw.hook('kekuleeditor.file.uploaded').fire({ exists: true, name: fileName });
+			mw.hook('kekuleeditor.file.uploaded').fire({ exists: true, name: fileName, label: fileLabel});
 			mw.notify('Saved', {
 				type: 'success'
 			});
