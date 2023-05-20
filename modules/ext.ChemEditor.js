@@ -412,13 +412,14 @@ function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false, f
 		return { result: 'success', msg: 'Saved' };
 	}).fail(function (data) {
 		if (debug) console.log(data);
-		if (data === 'exists') {
+		if (data === 'exists' || data === 'was-deleted' || data === 'duplicate' || data == 'duplicate-archive' || data === 'page-exists') { //only warning, upload was successful anyway
 			mw.hook('kekuleeditor.file.uploaded').fire({ exists: true, name: fileName, label: fileLabel});
 			mw.notify('Saved', {
 				type: 'success'
 			});
 			return { result: 'success', msg: 'Saved' };
 		}
+		// data === 'mustbeloggedin'
 		else {
 			mw.notify('An error occured while saving. \nPlease save your work on the local disk.', {
 				title: 'Error',
