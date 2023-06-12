@@ -4,7 +4,7 @@
 	"requires": {
 		"MediaWiki": ">= 1.35",
 		"extensions": {
-			"MwJson": ">= 0.6.0"
+			"MwJson": ">= 0.6.1"
 		}
 	},
 	"author": [

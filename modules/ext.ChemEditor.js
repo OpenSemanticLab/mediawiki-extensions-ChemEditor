@@ -410,9 +410,9 @@ function KekuleEditor_uploadBlob(blob, fileName, text, comment, debug = false, f
 			type: 'success'
 		});
 		return { result: 'success', msg: 'Saved' };
-	}).fail(function (data) {
+	}).fail(function (retStatus, data) {
 		if (debug) console.log(data);
-		if (data === 'exists' || data === 'was-deleted' || data === 'duplicate' || data == 'duplicate-archive' || data === 'page-exists') { //only warning, upload was successful anyway
+		if (data.upload.result === "Success") {
 			mw.hook('kekuleeditor.file.uploaded').fire({ exists: true, name: fileName, label: fileLabel});
 			mw.notify('Saved', {
 				type: 'success'
