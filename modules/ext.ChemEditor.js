@@ -41,7 +41,7 @@ $(document).ready(function () {
 	).done(function () {
 
 		var debug = false;
-		Kekule.environment.setEnvVar('indigo.path', '/w/extensions/ChemEditor/modules/kekule/extra/');
+		Kekule.environment.setEnvVar('indigo.path', mw.config.get("wgScriptPath") + "/extensions/ChemEditor/modules/kekule/extra/");
 		Kekule.Indigo.enable(function (error) {
 			if (debug) console.log('Indigo loaded');
 
@@ -63,7 +63,7 @@ $(document).ready(function () {
 				context.api = new mw.Api();
 				initComposer(context);
 
-				var query = "/w/index.php?title=" + context.page + "&action=raw";
+				var query = mw.config.get("wgScriptPath") + "/index.php?title=" + context.page + "&action=raw";
 				$.ajax({
 					url: query,
 					dataType: "text",
@@ -199,8 +199,8 @@ $(document).ready(function () {
 					saveChemObj(context)();
 				});
 
-				var query = "/w/index.php?title=" + context.page + "&action=raw";
-				$.getJSON("/w/api.php?action=query&prop=revisions&titles=File:" + context.page + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
+				var query = mw.config.get("wgScriptPath") + "/index.php?title=" + context.page + "&action=raw";
+				$.getJSON(mw.config.get("wgScriptPath") + "/api.php?action=query&prop=revisions&titles=File:" + context.page + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
 			});
 		});
 	});//getScript
@@ -210,7 +210,7 @@ var viewKekuleDocument = function (context) {
 	return function (data) {
 		if (data.query.pages[0].hasOwnProperty("missing") && data.query.pages[0].missing === true) {
 			if (context.debug) console.log("Page does not exist");
-			$.getJSON("/w/api.php?action=query&prop=revisions&titles=" + context.defaultPage + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
+			$.getJSON(mw.config.get("wgScriptPath") + "/api.php?action=query&prop=revisions&titles=" + context.defaultPage + "&rvprop=content&formatversion=2&format=json", viewKekuleDocument(context));
 		}
 		else {
 			var content = data.query.pages[0].revisions[0].content;
@@ -218,7 +218,7 @@ var viewKekuleDocument = function (context) {
 			if (data.query.pages[0].title == context.defaultPage) context.chemViewer.loadFromData(content, 'chemical/x-kekule-json');
 			else {
 				$.ajax({
-					url: "/wiki/Special:Redirect/file/" + context.page,
+					url: mw.util.getUrl("Special:Redirect/file/" + context.page),
 					dataType: "text",
 					success: function (data) {
 						if (context.debug) console.log(data);
