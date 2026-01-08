@@ -86,7 +86,7 @@ $(document).ready(function () {
 				context.debug = debug;
 				if (context.debug) console.log(data);
 				context.chemViewer = chemViewer;
-				context.source = "smw"
+				context.source = "smw";
 				if (div_element.hasClass('div_kekule_source_pubchem')) context.source = "pubchem";
 
 				// set new object in viewer

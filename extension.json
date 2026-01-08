@@ -1,6 +1,6 @@
 {
 	"name": "ChemEditor",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"requires": {
 		"MediaWiki": ">= 1.35",
 		"extensions": {
